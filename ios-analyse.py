@@ -19,7 +19,7 @@ if inputdir and outputfile:
 
  csvrecord = csv.writer(outfile, delimiter=';',quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
- headerarray=["Hostname","Syslog Host","Syslog Level","NTP host","SSH enabled","Telnet Enabled","SNMP Enabled","SNMP Trap Config", "Password Methods","DHCP Snooping","Dynamic ARP inspection","Banner","AAA","Exec Timeout"]
+ headerarray=["Hostname","Version","IP Addresses","Syslog Host","Syslog Level","NTP host","SSH enabled","Telnet Enabled","SNMP Enabled","SNMP Trap Config", "Password Methods","DHCP Snooping","Dynamic ARP inspection","Banner","AAA","Exec Timeout"]
 
  csvrecord.writerow(headerarray)
 
@@ -41,6 +41,8 @@ if inputdir and outputfile:
   bannerresult=""
   aaaresult=""
   exectimeoutresult=""
+  versionresult=""
+  ipaddrresult=""
   valuearr=[]
   prevstring=""
 
@@ -54,6 +56,16 @@ if inputdir and outputfile:
    if hostname:
 #    print "Hostname:"+hostname.group(0)
     hostnameresult=hostname.group(0)
+
+   version = re.search("^version\ (.*)",string)
+   if version:
+#    print "Version:"+version.group(0)
+    versionresult=version.group(0)
+
+   ipaddr = re.search("^\ ip\ address\ (.*)",string)
+   if ipaddr:
+#    print "Log Host:"+loghost.group(0)
+    ipaddrresult=ipaddrresult+ipaddr.group(0)+"\n"
 
    loghost = re.search("^logging\ (1.*)|^logging\ host\ (1.*)",string)
    if loghost:
@@ -135,7 +147,7 @@ if inputdir and outputfile:
 
   infile.close
 
-  valuearr=[hostnameresult ,loghostresult ,loglevelresult ,ntphostresult ,sshenabledresult ,telnetenabledresult ,snmpenabledresult ,snmptrapresult ,passwordmethodsresult ,dhcpsnoopingresult , arpinspectionresult, bannerresult, aaaresult, exectimeoutresult]
+  valuearr=[hostnameresult , versionresult, ipaddrresult,  loghostresult ,loglevelresult ,ntphostresult ,sshenabledresult ,telnetenabledresult ,snmpenabledresult ,snmptrapresult ,passwordmethodsresult ,dhcpsnoopingresult , arpinspectionresult, bannerresult, aaaresult, exectimeoutresult]
 
   csvrecord.writerow(valuearr)
   
