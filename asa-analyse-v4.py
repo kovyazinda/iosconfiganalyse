@@ -19,7 +19,8 @@ if inputdir and outputfile:
 
  csvrecord = csv.writer(outfile, delimiter=';',quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
- headerarray=["Hostname","Version","Interfaces","Routes","NAT Rules","Syslog Host","Syslog Level","NTP host","SSH enabled","Telnet Enabled","SNMP Enabled","SNMP Trap Config", "Weak Password Methods","Banner","AAA","Exec Timeout","Server Groups"]
+
+ headerarray=["Hostname","Version","Interfaces","Routes","NAT Rules","Syslog Host","Syslog Level","NTP host","SSH enabled","Telnet Enabled","SNMP Enabled","SNMP Trap Config", "Weak Password Methods","Banner","AAA","Exec Timeout","Server Groups","ACL permit ip or any"]
 
  csvrecord.writerow(headerarray)
 
@@ -52,6 +53,7 @@ if inputdir and outputfile:
   routesresult=""
   natresult=""
   defaultgatewayresult=""
+  aclresult=""
 
   print "Reading "+inputfile+":"
   infile=open(inputdir+"/"+inputfile,"rU")
@@ -73,6 +75,7 @@ if inputdir and outputfile:
 
    interfaces = re.search("^interface\ (.*)",string)
    if interfaces:
+# to make shutdown and interface id in single line 
     interfacesresult=interfacesresult+"\n"+interfaces.group(0)
 
 
@@ -82,6 +85,7 @@ if inputdir and outputfile:
     if shutdown:
      interfacesresult=interfacesresult+" shutdown"
 
+# Can be extracted, but makes extraction not readable
     description = re.search("description\ (.*)",string)
     if description:
      interfacesresult=interfacesresult+description.group(0)
@@ -98,6 +102,22 @@ if inputdir and outputfile:
    route = re.search("^route\ (.*)",string)
    if route:
      routesresult=routesresult+route.group(0)+"\n"
+
+   aclip = re.search("^access-list.*(permit\ ip.*any.*)",string)
+   aclany = re.search("^access-list.*(permit.*any.*any.*)",string)
+
+   if aclip:
+    if re.search("0x........",aclip.group(0)):
+     pass
+    else:
+     aclresult=aclresult+aclip.group(0)+"\n"
+
+   if aclany:
+    if re.search("0x........",aclany.group(0)):
+     pass
+    else:
+     aclresult=aclresult+aclany.group(0)+"\n"
+
 
    defaultgateway = re.search("ip\ default-gateway\ (.*)",string)
    if defaultgateway:
@@ -187,12 +207,13 @@ if inputdir and outputfile:
   infile.close
 
 
-  valuearr=[hostnameresult , versionresult, interfacesresult, routesresult, natresult, loghostresult ,loglevelresult ,ntphostresult ,sshenabledresult ,telnetenabledresult ,snmpenabledresult ,snmptrapresult ,passwordmethodsresult ,bannerresult, aaaresult, exectimeoutresult,servergroupsresult]
+  valuearr=[hostnameresult , versionresult, interfacesresult, routesresult, natresult, loghostresult ,loglevelresult ,ntphostresult ,sshenabledresult ,telnetenabledresult ,snmpenabledresult ,snmptrapresult ,passwordmethodsresult ,bannerresult, aaaresult, exectimeoutresult,servergroupsresult,aclresult]
 
 
   csvrecord.writerow(valuearr)
   
 
+# closing report
  outfile.close
 
 else:
