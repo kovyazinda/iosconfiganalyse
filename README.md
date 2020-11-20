@@ -10,5 +10,5 @@ Update:
 - Routes
 - NAT rules
 
-# Syntax IOS: ios-analyse.py inputdirectory outputfile.csv
-# Syntax ASA: asa-analyse.py inputdirectory outputfile.csv
+# Syntax for IOS: ios-analyse.py inputdirectory outputfile.csv
+# Syntax for ASA: asa-analyse-v4.py inputdirectory outputfile.csv
