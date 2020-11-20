@@ -107,13 +107,9 @@ if inputdir and outputfile:
    if ipaddr:
     ipaddrresult=ipaddrresult+sectionresult+ipaddr.group(0)+"\n"
 
-   natglobal = re.search("^ip\ nat\ (.*)",string)
+   natglobal = re.search("^(nat\ .*)",string)
    if natglobal:
-
-    try:
-     natresult=natresult+sectionresult+"\n"+nat.group(0)+"\n\n"
-    except:
-     natresult=natresult+nat.group(0)+"\n"
+    natresult=natresult+natglobal.group(0)+"\n"
 
    loghost = re.search("^logging\ (1.*)|^logging\ host\ (1.*)",string)
    if loghost:
