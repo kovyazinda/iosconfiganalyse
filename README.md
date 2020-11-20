@@ -1,5 +1,5 @@
 # iosconfiganalyse
-Analyse basic security and monitoring settings in Cisco IOS
+Analyse basic security and monitoring settings in Cisco IOS and Cisco ASA
 
 Update:
 
@@ -10,4 +10,5 @@ Update:
 - Routes
 - NAT rules
 
-# Syntax: ios-analyse.py inputdirectory outputfile.csv
+# Syntax IOS: ios-analyse.py inputdirectory outputfile.csv
+# Syntax ASA: asa-analyse.py inputdirectory outputfile.csv
