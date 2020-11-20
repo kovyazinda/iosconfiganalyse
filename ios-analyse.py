@@ -19,7 +19,7 @@ if inputdir and outputfile:
 
  csvrecord = csv.writer(outfile, delimiter=';',quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
- headerarray=["Hostname","Version","Interfaces","Interface Shutdown","IP Addresses","Syslog Host","Syslog Level","NTP host","SSH enabled","Telnet Enabled","SNMP Enabled","SNMP Trap Config", "Weak Password Methods","DHCP Snooping","Dynamic ARP inspection","Banner","AAA","Exec Timeout","Server Groups"]
+ headerarray=["Hostname","Version","Interfaces","Routes","IP Default-Gateway","NAT Rules","Syslog Host","Syslog Level","NTP host","SSH enabled","Telnet Enabled","SNMP Enabled","SNMP Trap Config", "Weak Password Methods","DHCP Snooping","Dynamic ARP inspection","Banner","AAA","Exec Timeout","Server Groups"]
 
  csvrecord.writerow(headerarray)
 
@@ -49,6 +49,9 @@ if inputdir and outputfile:
   prevstring=""
   sectionresult=""
   shutdownresult=""
+  routesresult=""
+  natresult=""
+  defaultgatewayresult=""
 
   print "Reading "+inputfile+":"
   infile=open(inputdir+"/"+inputfile,"rU")
@@ -62,24 +65,55 @@ if inputdir and outputfile:
 
    hostname = re.search("^hostname\ (.*)",string)
    if hostname:
-
     hostnameresult=hostname.group(0)
 
    version = re.search("^version\ (.*)",string)
    if version:
     versionresult=version.group(0)
 
-   interfaces = re.search("interface\ (.*)",string)
+   interfaces = re.search("^interface\ (.*)",string)
    if interfaces:
-     interfacesresult=interfacesresult+interfaces.group(0)+"\n"
+    interfacesresult=interfacesresult+"\n"+interfaces.group(0)
 
-   shutdown = re.search("shutdown",string)
-   if shutdown:
-     shutdownresult=shutdownresult+sectionresult+"\n"+"shutdown\n"
+
+   if re.search("interface", sectionresult):
+
+    shutdown = re.search(" shutdown",string)
+    if shutdown:
+     interfacesresult=interfacesresult+" shutdown"
+
+    description = re.search("description\ (.*)",string)
+    if description:
+     interfacesresult=interfacesresult+description.group(0)
+
+    ipaddr = re.search("^\ ip\ address\ (.*)",string)
+    if ipaddr:
+     interfacesresult=interfacesresult+"\n"+ipaddr.group(0)+"\n"  
+
+    nat = re.search("^ip\ nat\ (.*)",string)
+    if nat:
+     interfacesresult=interfacesresult+"\n"+nat.group(0)+"\n"
+
+   route = re.search("ip\ route\ (.*)",string)
+   if route:
+     routesresult=routesresult+route.group(0)+"\n"
+
+   defaultgateway = re.search("ip\ default-gateway\ (.*)",string)
+   if defaultgateway:
+     defaultgatewayresult=defaultgatewayresult+defaultgateway.group(0)+"\n"
+
 
    ipaddr = re.search("^\ ip\ address\ (.*)",string)
    if ipaddr:
-    ipaddrresult=ipaddrresult+sectionresult+"\n"+ipaddr.group(0)+"\n"
+    ipaddrresult=ipaddrresult+sectionresult+ipaddr.group(0)+"\n"
+
+   natglobal = re.search("^ip\ nat\ (.*)",string)
+   if natglobal:
+
+    try:
+     natresult=natresult+sectionresult+"\n"+nat.group(0)+"\n\n"
+    except:
+     natresult=natresult+nat.group(0)+"\n"
 
    loghost = re.search("^logging\ (1.*)|^logging\ host\ (1.*)",string)
    if loghost:
@@ -95,11 +129,11 @@ if inputdir and outputfile:
 
    sshenabled = re.search("transport\ input.*(ssh)",string)
    if sshenabled:
-    sshenabledresult=sshenabledresult+sectionresult+"\n"+sshenabled.group(0)+"\n"
+    sshenabledresult=sshenabledresult+sectionresult+"\n "+sshenabled.group(0)+"\n"
 
    telnetenabled = re.search("transport\ input\ (telnet)",string)
    if telnetenabled:
-    telnetenabledresult=telnetenabledresult+sectionresult+"\n"+telnetenabled.group(0)
+    telnetenabledresult=telnetenabledresult+sectionresult+"\n "+telnetenabled.group(0)
 
    httpenabled = re.search("^(ip\ http\ server)",string)
    if httpenabled:
@@ -148,7 +182,8 @@ if inputdir and outputfile:
 
   infile.close
 
-  valuearr=[hostnameresult , versionresult, interfacesresult, shutdownresult, ipaddrresult,  loghostresult ,loglevelresult ,ntphostresult ,sshenabledresult ,telnetenabledresult ,snmpenabledresult ,snmptrapresult ,passwordmethodsresult ,dhcpsnoopingresult , arpinspectionresult, bannerresult, aaaresult, exectimeoutresult,servergroupsresult]
+  valuearr=[hostnameresult , versionresult, interfacesresult, routesresult, defaultgatewayresult, natresult, loghostresult ,loglevelresult ,ntphostresult ,sshenabledresult ,telnetenabledresult ,snmpenabledresult ,snmptrapresult ,passwordmethodsresult ,dhcpsnoopingresult , arpinspectionresult, bannerresult, aaaresult, exectimeoutresult,servergroupsresult]
+
 
   csvrecord.writerow(valuearr)
   
