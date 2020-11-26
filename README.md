@@ -4,6 +4,7 @@ Analyse basic security and monitoring settings in Cisco IOS and Cisco ASA, Moxa 
 Update v5:
 - Export to MS Excel
 - Boot order check for IOS / ASA
+- Basic parameters reporting for Moxa (Device name, Model, Interfaces, SNMP, NTP, ACL, Syslog, Console / Web)
 
 Update v4:
 - Weak password groups
