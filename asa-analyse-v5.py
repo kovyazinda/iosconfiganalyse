@@ -1,28 +1,87 @@
 import os
 import sys
 import re
-import csv
+#import csv
 from os import walk
+
+import xlsxwriter
+
 
 inputdir = sys.argv[1]
 outputfile = sys.argv[2]
 
-print inputdir
-print outputfile
+print (inputdir)
+print (outputfile)
 
 if inputdir and outputfile:   
- outfile=open(outputfile,"w+")
+# old csv export
+# outfile=open(outputfile,"w+")
  filelist = []
  for (dirpath, dirnames, filenames) in walk(inputdir):
   filelist.extend(filenames)
   break
 
- csvrecord = csv.writer(outfile, delimiter=';',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+# old csv export
+# csvrecord = csv.writer(outfile, delimiter=';',quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
 
  headerarray=["Hostname","Version","Interfaces","Routes","NAT Rules","Syslog Host","Syslog Level","NTP host","SSH enabled","Telnet Enabled","SNMP Enabled","SNMP Trap Config", "Weak Password Methods","Banner","AAA","Exec Timeout","Server Groups","ACL permit ip or any"]
 
- csvrecord.writerow(headerarray)
+# Writing to excel
+ workbook = xlsxwriter.Workbook(outputfile)
+ worksheet = workbook.add_worksheet()
+
+#apply default row height
+ worksheet.set_default_row(70)
+
+#applying cell format
+ cell_format_header = workbook.add_format({'bold': True, 'font_color': 'black'})
+ cell_format_normal = workbook.add_format({'bold': False, 'font_color': 'black', 'text_wrap' : True})
+ cell_format_bad = workbook.add_format({'bold': False, 'font_color': 'black', 'bg_color': 'red','text_wrap' : True})
+
+# writing column headers
+ worksheet.write (0,0,"Hostname",cell_format_header)
+ worksheet.write (0,1,"Version",cell_format_header)
+ worksheet.write (0,2,"Interfaces",cell_format_header)
+ worksheet.write (0,3,"Routes",cell_format_header)
+ worksheet.write (0,4,"NAT Rules",cell_format_header)
+ worksheet.write (0,5,"Syslog Host",cell_format_header)
+ worksheet.write (0,6,"Syslog Level",cell_format_header)
+ worksheet.write (0,7,"NTP host",cell_format_header)
+ worksheet.write (0,8,"SSH enabled",cell_format_header)
+ worksheet.write (0,9,"Telnet Enabled",cell_format_header)
+ worksheet.write (0,10,"SNMP Enabled",cell_format_header)
+ worksheet.write (0,11,"SNMP Trap Config",cell_format_header)
+ worksheet.write (0,12,"Weak Password Methods",cell_format_header)
+ worksheet.write (0,13,"Banner",cell_format_header)
+ worksheet.write (0,14,"AAA",cell_format_header)
+ worksheet.write (0,15,"Exec Timeout",cell_format_header)
+ worksheet.write (0,16,"Server Groups",cell_format_header)
+ worksheet.write (0,17,"ACL permit ip or any",cell_format_header)
+ worksheet.write (0,18,"Boot system",cell_format_header)
+
+#setting column properties
+#width
+# Hostname
+ worksheet.set_column(0, 0, 30)
+# Version
+ worksheet.set_column(1, 1, 15)
+# Long columns - interfaces, routes, default gateway, nat
+ worksheet.set_column(2, 6, 50)
+
+# Long columns - ACL, boot order
+ worksheet.set_column(17, 18, 50)
+
+
+# Other columns - set default to 30
+ worksheet.set_column(7, 16, 30)
+
+
+# to start writing to next rown
+ rownum=1
+
+
+# csvrecord.writerow(headerarray)
 
 
  for inputfile in filelist:
@@ -54,8 +113,9 @@ if inputdir and outputfile:
   natresult=""
   defaultgatewayresult=""
   aclresult=""
+  bootsystemresult=""
 
-  print "Reading "+inputfile+":"
+  print ("Reading "+inputfile+":")
   infile=open(inputdir+"/"+inputfile,"rU")
   for string in infile:
 
@@ -204,17 +264,35 @@ if inputdir and outputfile:
    if exectimeout:
     exectimeoutresult=exectimeoutresult+exectimeout.group(0)+"\n"
 
+   bootsystem = re.search("boot system (.*)",string)
+   if bootsystem:
+    bootsystemresult = bootsystemresult+bootsystem.group(0)+"\n"
+
+
   infile.close
 
 
   valuearr=[hostnameresult , versionresult, interfacesresult, routesresult, natresult, loghostresult ,loglevelresult ,ntphostresult ,sshenabledresult ,telnetenabledresult ,snmpenabledresult ,snmptrapresult ,passwordmethodsresult ,bannerresult, aaaresult, exectimeoutresult,servergroupsresult,aclresult]
 
 
-  csvrecord.writerow(valuearr)
+  colnum=0
+  for colvalue in valuearr:
+   worksheet.write (rownum,colnum,colvalue,cell_format_normal)  
+   colnum=colnum+1  
+
+# incrementing row
+  rownum=rownum+1
+
+
+ 
+ workbook.close()
+
+
+#  csvrecord.writerow(valuearr)
   
 
 # closing report
- outfile.close
+# outfile.close
 
 else:
- print "Syntax: ios-analyse.py <input-config-directory> <output-report.csv>"
+ print ("Syntax: ios-analyse.py <input-config-directory> <output-report.xlsx>")
