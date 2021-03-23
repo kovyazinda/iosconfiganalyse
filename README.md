@@ -18,3 +18,4 @@ Update v4:
 # Syntax for ASA: asa-analyse-v5.py inputdirectory outputfile.csv
 # Syntax for Moxa: moxa-analyse-v5.py inputdirectory outputfile.csv
 
+If you would like to support this project: BTC34kWXwjDn1uXQRfgeehaskD1hXZu713ZWQ
