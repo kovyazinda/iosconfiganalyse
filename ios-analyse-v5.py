@@ -19,6 +19,7 @@ if inputdir and outputfile:
  filelist = []
  for (dirpath, dirnames, filenames) in walk(inputdir):
   filelist.extend(filenames)
+  print ("Debug: ",filenames)
   break
 # old csv export
 # csvrecord = csv.writer(outfile, delimiter=';',quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -162,6 +163,11 @@ if inputdir and outputfile:
     if description:
      interfacesresult=interfacesresult+" "+description.group(0)
 
+    vlan = re.search("switchport\ access\ vlan\ (.*)",string)
+    if vlan:
+     interfacesresult=interfacesresult+" "+vlan.group(0)
+
+
     ipaddr = re.search("^\ ip\ address\ (.*)",string)
     if ipaddr:
      interfacesresult=interfacesresult+"\n"+ipaddr.group(0)+"\n"  
@@ -246,10 +252,16 @@ if inputdir and outputfile:
 #    print "snmptrap:"+snmptrap.group(0)
     snmptrapresult=snmptrapresult+snmptrap.group(0)+"\n"
 
-   passwordmethods = re.search("(.*password\ .*)",string)
+   passwordmethods = re.search("(.*password\ 7)",string)
    if passwordmethods:
-#    print "passwordmethods:"+passwordmethods.group(0)
-    passwordmethodsresult=passwordmethodsresult+sectionresult+"\n"+passwordmethods.group(0)+"\n"
+    if ("ftp" in sectionresult):    
+#     print ("passwordmethods:"+passwordmethods.group(0))
+     passwordmethodsresult=passwordmethodsresult+passwordmethods.group(0)+"\n"
+    else:
+#     print ("passwordmethods:"+sectionresult+passwordmethods.group(0))
+     passwordmethodsresult=passwordmethodsresult+passwordmethods.group(0)+"\n"
+
+#+passwordmethods.group(0)+"\n"
 
    servergroups = re.search("(.*\-server\ host\ .*)",string)
    if servergroups:
